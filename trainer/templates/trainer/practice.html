@@ -1,0 +1,100 @@
+{% extends 'trainer/base.html' %}
+
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="card practice-card">
+    <div class="practice-header">
+        <div>
+            <h1>{{ title }}</h1>
+            <p class="muted">
+                Язык:
+                {% if language == 'en' %}
+                английский
+                {% else %}
+                русский
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'trainer:home' %}" class="button secondary">
+            Новый текст
+        </a>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <span class="stat-label">Время</span>
+            <span class="stat-value" id="timer">0 c</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">WPM</span>
+            <span class="stat-value" id="wpm">0</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">CPM</span>
+            <span class="stat-value" id="cpm">0</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Точность</span>
+            <span class="stat-value" id="accuracy">100%</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Ошибки</span>
+            <span class="stat-value" id="errors">0</span>
+        </div>
+    </div>
+
+    <div id="text-display" class="text-display"></div>
+
+    <textarea
+    id="typing-input"
+    class="typing-input"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="off"
+    spellcheck="false"
+    placeholder="Начните печатать здесь..."
+    ></textarea>
+
+        <div class="practice-actions">
+        <button type="button" id="restart-button" class="button secondary">
+            Заново
+        </button>
+        <button type="button" id="finish-button" class="button primary">
+            Завершить и сохранить
+        </button>
+    </div>
+</section>
+
+<form
+    id="result-form"
+    method="post"
+    action="{% url 'trainer:save_result' %}"
+    class="hidden"
+>
+    {% csrf_token %}
+    <input type="hidden" name="language" value="{{ language }}">
+    <input type="hidden" name="source_text" value="{{ source_text }}">
+    <input type="hidden" name="typed_text" id="typed-text-input">
+    <input type="hidden" name="duration_seconds" id="duration-input">
+    <input type="hidden" name="characters" id="characters-input">
+    <input type="hidden" name="correct_characters" id="correct-input">
+    <input type="hidden" name="incorrect_characters" id="incorrect-characters">
+    <input type="hidden" name="accuracy" id="accuracy-input">
+    <input type="hidden" name="wpm" vid="wpm-input">
+    <input type="hidden" name="cpm" id="cpm-input">
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    window.PRACTICE_SOURCE_TEXT = "{{ source_text|escapejs }}";
+</script>
+<script src="{% static 'trainer/js/practice.js' %}"></script>
+{% endblock %}

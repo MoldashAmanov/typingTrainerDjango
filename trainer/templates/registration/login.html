@@ -1,0 +1,47 @@
+{% extends "trainer/base.html" %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<section class="auth-card card">
+    <h1>Вход</h1>
+    <p class="muted">
+        Войдите, чтобы сохранять результаты тренировок и видеть историю прогресса.
+    </p>
+
+    {% if form.errors %}
+        <div class="alert error">
+            <p>Неверное имя пользователя или пароль.</p>
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">
+                Имя пользователя
+            </label>
+            {{ form.username }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}">
+                Пароль
+            </label>
+            {{ form.password }}
+        </div>
+
+        <button type="submit" class="button primary">
+            Войти
+        </button>
+    </form>
+
+    <p class="muted auth-footer">
+        Ещё нет аккаунта?
+        <a href="{% url 'trainer:home' %}">Начните тренировку без регистрации</a>.
+    </p>
+</section>
+{% endblock %}

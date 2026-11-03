@@ -1,0 +1,72 @@
+{% extends 'trainer/base.html' %}
+
+{% block title %}Практика слепой печати{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Тренажер слепого ввода</h1>
+    <p>
+        Тренируйтесь на английском и русском языках.
+        Используйте готовый текст или вставьте собственный.
+    </p>
+</section>
+
+<section class="card">
+    <h2>Начать тренировку</h2>
+
+    {% if form.non_field_errors %}
+    <div class="alert error">
+        {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'trainer:practice' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.language.id_for_label }}">
+                {{ form.language.label }}
+            </label>
+            {{ form.language }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.custom_text.id_for_label }}">
+                {{ form.custom_text.label }}
+            </label>
+            {{ form.custom_text }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.saved_text.id_for_label }}">
+                {{ form.saved_text.label }}
+            </label>
+            {{ form.saved_text }}
+        </div>
+
+        <button type="submit" class="buttom primary">
+            Начать практику
+        </button>
+    </form>
+</section>
+
+{% if recent_texts %}
+<section class="card">
+    <h2>Готовые тексты</h2>
+
+    <div class="text-grid">
+        {% for text in recent_texts %}
+        <article class="text-card">
+            <h3>{{ text.title }}</h3>
+            <p class="mutes">
+                {{ text.get_language_display }} - {{ text.word_count }} слов
+            </p>
+            <p>{{ text.content|truncatechars:140 }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

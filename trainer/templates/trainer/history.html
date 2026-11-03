@@ -1,0 +1,60 @@
+{% extends 'trainer/base.html' %}
+
+{% block title %}История тренировок{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>История тренировок</h1>
+
+    <div class="stats">
+        <div class="stat">
+            <span class="stat-label">Тренировок</span>
+            <span class="stat-value">{{ total_results }}</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Лучший WPM</span>
+            <span class="stat-value">{{ best_wpm|floatformat:0 }}</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Средняя точность</span>
+            <span class="stat-value">{{ average_accuracy|floatformat:1 }}</span>
+        </div>
+    </div>
+
+    {% if results %}
+    <table class="result-table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Язык</th>
+                <th>WPM</th>
+                <th>CPM</th>
+                <th>Точность</th>
+                <th>Ошибки</th>
+                <th>Время</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.created_at|date:"d.m.Y H:i" }}</td>
+                <td>{{ result.get_language_display }}</td>
+                <td>{{ result.wpm|floatformat:1 }}</td>
+                <td>{{ result.cpm|floatformat:1 }}</td>
+                <td>{{ result.accuracy|floatformat:1 }}</td>
+                <td>{{ result.incorrect_characters }}</td>
+                <td>{{ result.duration_seconds }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="mutes">
+        Пока нет сохраненных тренировок
+        <a href="{% url 'trainer:home' %}">Начните первую практику</a>
+    </p>
+    {% endif %}
+</section>
+{% endblock %}

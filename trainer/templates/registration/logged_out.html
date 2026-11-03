@@ -1,0 +1,23 @@
+{% extends "trainer/base.html" %}
+
+{% block title %}Вы вышли из аккаунта{% endblock %}
+
+{% block content %}
+<section class="auth-card card">
+    <h1>Вы вышли из аккаунта</h1>
+
+    <p class="muted">
+        Спасибо за тренировку. Вы можете войти снова или продолжить практику без сохранения результатов.
+    </p>
+
+    <div class="practice-actions">
+        <a href="{% url 'login' %}" class="button primary">
+            Войти снова
+        </a>
+
+        <a href="{% url 'trainer:home' %}" class="button secondary">
+            На главную
+        </a>
+    </div>
+</section>
+{% endblock %}
