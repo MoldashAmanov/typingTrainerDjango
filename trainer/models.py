@@ -70,7 +70,7 @@ class PracticeResult(models.Model):
         decimal_places=2,
         default=0,
     )
-    createc_at = models.DateTimeField("Дата тренировки", auto_now_add=True)
+    created_at = models.DateTimeField("Дата тренировки", auto_now_add=True)
 
     class Meta:
         verbose_name = "Результат тренировки"
