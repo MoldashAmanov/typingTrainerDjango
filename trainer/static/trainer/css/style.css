@@ -328,3 +328,9 @@ label {
 .auth-footer a {
     color: var(--primary);
 }
+
+.field-error {
+    color: #fca5a5;
+    font-size: 14px;
+    margin: 6px 0 0;
+}

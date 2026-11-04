@@ -2,8 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import Avg
+from django.contrib.auth import login
+from django.contrib import messages
 
-from .forms import PracticeResultForm, PracticeStartForm
+from .forms import PracticeResultForm, PracticeStartForm, SighUpForm
 from .models import PracticeResult, PracticeText
 
 
@@ -105,3 +107,27 @@ def history(request):
         'average_accuracy': average_accuracy or 0,
     }
     return render(request, 'trainer/history.html', context)
+
+
+def register(request):
+    if request.user.is_authenticated:
+        return redirect('trainer:home')
+
+    if request.method == "POST":
+        form = SighUpForm(request.POST)
+
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+
+            messages.success(
+                request,
+                'Аккаунт создан. Добро пожаловать!'
+            )
+
+            return redirect('trainer:home')
+    else:
+        form = SighUpForm()
+
+    context = {'form': form}
+    return render(request, 'registration/register.html', context)
