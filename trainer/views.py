@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.db.models import Avg
+from django.db.models import Avg, Count, Max, Sum
 from django.contrib.auth import login
 from django.contrib import messages
 import json
@@ -155,27 +155,56 @@ def result_detail(request, result_id):
 
 @login_required
 def history(request):
-    results = request.user.practice_results.all()[:20]
+    results = (
+        request.user.practice_results
+        .select_related('practice_text')
+        .order_by('created_at')
+    )
 
-    total_results = request.user.practice_results.count()
+    recent_results = list(results.reverse()[:20])
 
-    if total_results:
-        best_wpm = request.user.practice_results.order_by('-wpm').first().wpm
-        average_accuracy = (
-            request.user.practice_results.aggregate(
-                accuracy=Avg('accuracy')
-            )['accuracy']
-        )
-    else:
-        best_wpm = 0
-        average_accuracy = 0
+    stats = request.user.practice_results.aggregate(
+        total_results = Count('id'),
+        best_wpm = Max('wpm', default=0),
+        average_wpm = Avg('wpm', default=0),
+        average_accuracy = Avg('accuracy', default=0),
+        average_cpm = Avg('cpm', default=0),
+        total_duration = Sum('duration_seconds', default=0),
+    )
+
+    english_stats = request.user.practice_results.filter(
+        language = PracticeText.Language.ENGLISH
+    ).aggregate(
+        total_results = Count('id'),
+        best_wpm = Max('wpm', default=0),
+        average_accuracy = Avg('accuracy', default=0),
+    )
+
+    russian_stats = request.user.practice_results.filter(
+        language = PracticeText.Language.RUSSIAN
+    ).aggregate(
+        total_results = Count('id'),
+        best_wpm = Max('wpm', default=0),
+        average_accuracy = Avg('accuracy', default=0),
+    )
+
+    chart_data = {
+        'labels': [
+            result.created_at.strftime('%d.%m %H:%M')
+            for result in results
+        ],
+        'wpm': [float(result.wpm) for result in results],
+        'accuracy': [float(result.accuracy) for result in results],
+    }
 
     context = {
-        'results': results,
-        'total_results': total_results,
-        'best_wpm': best_wpm,
-        'average_accuracy': average_accuracy or 0,
+        'results': recent_results,
+        'stats': stats,
+        'english_stats': english_stats,
+        'russian_stats': russian_stats,
+        'chart_data': chart_data,
     }
+
     return render(request, 'trainer/history.html', context)
 
 

@@ -85,5 +85,5 @@ class PracticeResult(models.Model):
         verbose_name_plural = "Результаты тренировок"
         ordering = ["-created_at"]
 
-        def __str__(self):
-            return f"Тренировка #{self.pk} - {self.language.upper()} - {self.wpm} WPM"
+    def __str__(self):
+        return f"Тренировка #{self.pk} - {self.language.upper()} - {self.wpm} WPM"

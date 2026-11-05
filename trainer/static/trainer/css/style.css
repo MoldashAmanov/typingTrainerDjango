@@ -334,3 +334,45 @@ label {
     font-size: 14px;
     margin: 6px 0 0;
 }
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.language-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.language-stat {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.language-stat h3 {
+    margin-top: 0;
+    color: var(--primary);
+}
+
+.chart-container {
+    position: relative;
+    height: 380px;
+}
+
+@media (max-width: 720px) {
+    .profile-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+}

@@ -1,29 +1,84 @@
-{% extends 'trainer/base.html' %}
+{% extends "trainer/base.html" %}
 
-{% block title %}История тренировок{% endblock %}
+{% load static %}
+
+{% block title %}Профиль и прогресс{% endblock %}
 
 {% block content %}
 <section class="card">
-    <h1>История тренировок</h1>
+    <div class="profile-header">
+        <div>
+            <h1>Профиль и прогресс</h1>
+            <p class="muted">
+                Пользователь: <strong>{{ user.username }}</strong>
+            </p>
+        </div>
+
+        <a href="{% url 'trainer:home' %}" class="button primary">
+            Новая тренировка
+        </a>
+    </div>
 
     <div class="stats">
         <div class="stat">
             <span class="stat-label">Тренировок</span>
-            <span class="stat-value">{{ total_results }}</span>
+            <span class="stat-value">{{ stats.total_results }}</span>
         </div>
 
         <div class="stat">
             <span class="stat-label">Лучший WPM</span>
-            <span class="stat-value">{{ best_wpm|floatformat:0 }}</span>
+            <span class="stat-value">{{ stats.best_wpm|floatformat:1 }}</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Средний WPM</span>
+            <span class="stat-value">{{ stats.average_wpm|floatformat:1 }}</span>
         </div>
 
         <div class="stat">
             <span class="stat-label">Средняя точность</span>
-            <span class="stat-value">{{ average_accuracy|floatformat:1 }}</span>
+            <span class="stat-value">{{ stats.average_accuracy|floatformat:1 }}%</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Общее время</span>
+            <span class="stat-value">{{ stats.total_duration }} c</span>
         </div>
     </div>
+</section>
 
-    {% if results %}
+<section class="card">
+    <h2>Прогресс по языкам</h2>
+
+    <div class="language-stats">
+        <div class="language-stat">
+            <h3>Английский</h3>
+            <p>Тренировок: {{ english_stats.total_results }}</p>
+            <p>Лучший WPM: {{ english_stats.best_wpm|floatformat:1 }}</p>
+            <p>Средняя точность: {{ english_stats.average_accuracy|floatformat:1 }}%</p>
+        </div>
+
+        <div class="language-stat">
+            <h3>Русский</h3>
+            <p>Тренировок: {{ russian_stats.total_results }}</p>
+            <p>Лучший WPM: {{ russian_stats.best_wpm|floatformat:1 }}</p>
+            <p>Средняя точность: {{ russian_stats.average_accuracy|floatformat:1 }}%</p>
+        </div>
+    </div>
+</section>
+
+{% if stats.total_results %}
+<section class="card">
+    <h2>Динамика скорости и точности</h2>
+
+    <div class="chart-container">
+        <canvas id="progress-chart"></canvas>
+    </div>
+</section>
+
+<section class="card">
+    <h2>Последние тренировки</h2>
+
     <table class="result-table">
         <thead>
             <tr>
@@ -34,27 +89,48 @@
                 <th>Точность</th>
                 <th>Ошибки</th>
                 <th>Время</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             {% for result in results %}
-            <tr>
-                <td>{{ result.created_at|date:"d.m.Y H:i" }}</td>
-                <td>{{ result.get_language_display }}</td>
-                <td>{{ result.wpm|floatformat:1 }}</td>
-                <td>{{ result.cpm|floatformat:1 }}</td>
-                <td>{{ result.accuracy|floatformat:1 }}</td>
-                <td>{{ result.incorrect_characters }}</td>
-                <td>{{ result.duration_seconds }}</td>
-            </tr>
+                <tr>
+                    <td>{{ result.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ result.get_language_display }}</td>
+                    <td>{{ result.wpm|floatformat:1 }}</td>
+                    <td>{{ result.cpm|floatformat:1 }}</td>
+                    <td>{{ result.accuracy|floatformat:1 }}%</td>
+                    <td>{{ result.incorrect_characters }}</td>
+                    <td>{{ result.duration_seconds }} c</td>
+                    <td>
+                        <a href="{% url 'trainer:result_detail' result.pk %}">
+                            Подробнее
+                        </a>
+                    </td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-    <p class="mutes">
-        Пока нет сохраненных тренировок
-        <a href="{% url 'trainer:home' %}">Начните первую практику</a>
-    </p>
-    {% endif %}
 </section>
+{% else %}
+<section class="card">
+    <h2>Пока нет данных</h2>
+
+    <p class="muted">
+        Завершите первую тренировку, чтобы увидеть статистику и графики прогресса.
+    </p>
+
+    <a href="{% url 'trainer:home' %}" class="button primary">
+        Начать тренировку
+    </a>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% if stats.total_results %}
+{{ chart_data|json_script:"chart-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'trainer/js/progress-chart.js' %}"></script>
+{% endif %}
 {% endblock %}
