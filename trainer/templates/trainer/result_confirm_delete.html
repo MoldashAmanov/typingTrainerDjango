@@ -1,0 +1,28 @@
+{% extends 'trainer/base.html' %}
+
+{% block title %}Удалить тренировку{% endblock %}
+
+{% block content %}
+<section class="auth-card card">
+    <h1>Удалить тренировку?</h1>
+
+    <p class="muted">
+        {{ result.created_at|date:"d.m.Y H:i" }} ·
+        {{ result.get_language_display }} ·
+        {{ result.wpm|floatformat:1 }} WPM ·
+        {{ result.accuracy|floatformat:1 }}%
+    </p>
+
+    <p>Это действие нельзя отменить</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="practice-actions">
+            <button type="submit" class="button danger">Удалить</button>
+            <a href="{% url 'trainer:history' %}" class="button secondary">
+                Отмена
+            </a>
+        </div>
+    </form>
+</section>
+{% endblock %}

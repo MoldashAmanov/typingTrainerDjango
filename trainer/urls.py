@@ -15,4 +15,14 @@ urlpatterns = [
         views.result_detail,
         name='result_detail',
     ),
+    path(
+        'results/<int:result_id>/delete/',
+        views.delete_result,
+        name='delete_result',
+    ),
+    path(
+        'history/reset/',
+        views.reset_history,
+        name='reset_history',
+    ),
 ]

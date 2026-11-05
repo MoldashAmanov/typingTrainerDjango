@@ -1,0 +1,39 @@
+{% extends 'trainer/base.html' %}
+
+{% block title %}Сбросить историю{% endblock %}
+
+{% block content %}
+<section class="auth-card card">
+    <h1>Сбросить всю историю?</h1>
+
+    <p>
+        Будут безвозвратно удалены все тренировки:
+        <strong>{{ total }}</strong>
+        Статистика и график обнулятся
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="confirm">Для подтверждения введите RESET</label>
+            <input
+                id="confirm"
+                name="confirm"
+                class="form-control"
+                autocomplete="off"
+                required
+            >
+            </div>
+
+            <div class="practice-actions">
+                <button type="submit" class="button danger">
+                    Сбросить историю
+                </button>
+                <a href="{% url 'trainer:history' %}" class="button secondary">
+                    Отмена
+                </a>
+            </div>
+    </form>
+</section>
+{% endblock %}

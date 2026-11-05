@@ -230,3 +230,48 @@ def register(request):
 
     context = {'form': form}
     return render(request, 'registration/register.html', context)
+
+
+@login_required
+def delete_result(request, result_id):
+    result = get_object_or_404(
+        PracticeResult,
+        pk=result_id,
+        user=request.user,
+    )
+
+    if request.method == 'POST':
+        result.delete()
+        messages.success(request, 'Тренировка удалена')
+        return redirect('trainer:history')
+
+    return render(
+        request,
+        'trainer/result_confirm_delete.html',
+        {'result': result},
+    )
+
+
+@login_required
+def reset_history(request):
+    results = request.user.practice_results.all()
+    total = results.count()
+
+    if request.method == 'POST':
+        if request.POST.get('confirm') != 'RESET':
+            messages.error(request, 'Для сброса введите слово RESET')
+            return render(
+                request,
+                'trainer/history_confirm_reset.html',
+                {'total': total},
+            )
+
+        results.delete()
+        messages.success(request, 'История сброшена. Удалено тренировок: {total}')
+        return redirect('trainer:history')
+
+    return render(
+        request,
+        'trainer/history_confirm_reset.html',
+        {'total': total},
+    )

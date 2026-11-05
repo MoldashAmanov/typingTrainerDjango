@@ -376,3 +376,31 @@ label {
         height: 300px;
     }
 }
+
+.button.danger {
+    background: var(--danger);
+    color: #fff;
+}
+
+.button.danger:hover {
+    background: #b91c1c;
+}
+
+.danger-link {
+    color: #fca5a5;
+}
+
+.danger-zone {
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px solid var(--danger);
+    border-radius: 12px;
+}
+
+.danger-zone h3 {
+    margin-top: 0;
+    color: #fca5a5;
+}
+
+.message.success { color: #86efac; }
+.message.error { color: #fca5a5; }

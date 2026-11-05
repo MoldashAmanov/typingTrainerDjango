@@ -106,11 +106,22 @@
                         <a href="{% url 'trainer:result_detail' result.pk %}">
                             Подробнее
                         </a>
+                        ·
+                        <a href="{% url 'trainer:delete_result' result.pk %}" class="danger-link">
+                            Удалить
+                        </a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    <div class="danger-zone">
+        <h3>Опасная зона</h3>
+        <p class="muted">Удалить все результаты и обнулить статистику</p>
+        <a href="{% url 'trainer:reset_history' %}" class="button danger-link">
+            Сбрость историю
+        </a>
+    </div>
 </section>
 {% else %}
 <section class="card">
