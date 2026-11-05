@@ -1,0 +1,48 @@
+{% extends 'trainer/base.html' %}
+
+{% block title %}Результат тренировки{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Результат тренировки</h1>
+
+    <div class="stats">
+        <div class="stat">
+            <span class="stat-label">WPM</span>
+            <span class="stat-value">{{ result.wpm|floatformat:1 }}</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">CPM</span>
+            <span class="stat-value">{{ result.cpm|floatformat:1 }}</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Точность</span>
+            <span class="stat-value">{{ result.accuracy|floatformat:1 }}</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Ошибки</span>
+            <span class="stat-value">{{ result.incorrect_charachters }}</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Время</span>
+            <span class="stat-value">{{ result.duration_seconds }}</span>
+        </div>
+    </div>
+
+    <h2>Исходный текст</h2>
+    <div class="text-display">{{ result.source_text }}</div>
+
+    <h2>Ваш ввод</h2>
+    <div class="text-display">{{ result.typed_text }}</div>
+
+    <div class="practice-actions">
+        <a href="{% url 'trainer:home' %}" class="button secondary">
+            История
+        </a>
+    </div>
+</section>
+{% endblock %}

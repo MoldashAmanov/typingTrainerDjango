@@ -4,6 +4,10 @@ from django.views.decorators.http import require_POST
 from django.db.models import Avg
 from django.contrib.auth import login
 from django.contrib import messages
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 
 from .forms import PracticeResultForm, PracticeStartForm, SighUpForm
 from .models import PracticeResult, PracticeText
@@ -67,20 +71,86 @@ def practice(request):
     return render(request, 'trainer/practice.html', context)
 
 
+def recalculate_result_metrics(result):
+    source_text = result.source_text or ''
+    typed_text = result.typed_text or ''
+
+    correct = 0
+    incorrect = 0
+
+    for index, typed_char in enumerate(typed_text):
+        if index >= len(source_text):
+            incorrect += 1
+            continue
+
+        if typed_char == source_text[index]:
+            correct += 1
+        else:
+            incorrect += 1
+
+    checked_characters = correct + incorrect
+    accuracy = (
+        round((correct / checked_characters) * 100, 2)
+        if checked_characters
+        else 100.00
+    )
+
+    duration_seconds = max(result.duration_seconds or 0, 0)
+    minutes = duration_seconds / 60
+
+    cpm = round(len(typed_text) / minutes, 2) if minutes > 0 else 0
+    words = len([word for word in typed_text.split() if word])
+    wpm = round(words / minutes, 2) if minutes > 0 else 0
+
+    result.characters = len(typed_text)
+    result.correct_characters = correct
+    result.incorrect_characters = incorrect
+    result.accuracy = accuracy
+    result.cpm = cpm
+    result.wpm = wpm
+
+    return result
+
 @require_POST
 def save_result(request):
     form = PracticeResultForm(request.POST)
 
-    if form.is_valid():
-        result = form.save(commit=False)
+    if not form.is_valid():
+        return JsonResponse(
+            {
+                'ok': False,
+                'errors': form.errors,
+            },
+            status=400,
+        )
+    result = form.save(commit=False)
 
-        if request.user.is_authenticated:
-            result.user = request.user
+    if request.user.is_authenticated:
+        result.user = request.user
 
-        result.save()
-        return redirect('trainer:history')
+    result = recalculate_result_metrics(result)
+    result.save()
 
-    return redirect('trainer:home')
+    messages.success(request, 'Результат тренировки сохранен')
+
+    return JsonResponse(
+        {
+            'ok': True,
+            'redirect_url': reverse('trainer:result_detail', args=[result.pk]),
+        }
+    )
+
+
+def result_detail(request, result_id):
+    result = get_object_or_404(PracticeResult, pk=result_id)
+
+    if result.user and result.user != request.user:
+        return redirect('trainer:home')
+
+    context = {
+        'result': result,
+    }
+    return render(request, 'trainer/result_detail.html', context)
 
 
 @login_required

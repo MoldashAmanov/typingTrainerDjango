@@ -71,6 +71,14 @@ class PracticeResult(models.Model):
         default=0,
     )
     created_at = models.DateTimeField("Дата тренировки", auto_now_add=True)
+    practice_text = models.ForeignKey(
+        PracticeText,
+        on_delete=models.SET_NULL,
+        related_name='results',
+        verbose_name='Использованный текст',
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = "Результат тренировки"

@@ -128,27 +128,55 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function finishPractice() {
-        if (isFinished) {
-            return;
-        }
-
-        isFinished = true;
-        stopTimer();
-
-        const stats = calculateStats();
-
-        typedTextInput.value = stats.typedText;
-        durationInput.value = stats.elapsedSeconds;
-        charactersInput.value = stats.typedCharacters;
-        correctInput.value = stats.correct;
-        incorrectInput.value = stats.incorrect;
-        accuracyInput.value = stats.accuracy.toFixed(2);
-        wpmInput.value = stats.wpm.toFixed(2);
-        cpmInput.value = stats.cpm.toFixed(2);
-
-        resultForm.submit();
+    async function finishPractice() {
+    if (isFinished) {
+        return;
     }
+
+    isFinished = true;
+    stopTimer();
+
+    const stats = calculateStats();
+
+    const payload = new FormData();
+    payload.append("language", document.querySelector("#result-form [name=language]").value);
+    payload.append("source_text", sourceText);
+    payload.append("typed_text", stats.typedText);
+    payload.append("duration_seconds", stats.elapsedSeconds);
+    payload.append("characters", stats.typedCharacters);
+    payload.append("correct_characters", stats.correct);
+    payload.append("incorrect_characters", stats.incorrect);
+    payload.append("accuracy", stats.accuracy.toFixed(2));
+    payload.append("wpm", stats.wpm.toFixed(2));
+    payload.append("cpm", stats.cpm.toFixed(2));
+
+    const csrfToken = document.querySelector(
+        "#result-form [name=csrfmiddlewaretoken]"
+    ).value;
+
+    try {
+        const response = await fetch(resultForm.action, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken,
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            body: payload,
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+            window.location.href = data.redirect_url;
+        } else {
+            alert("Не удалось сохранить результат. Попробуйте ещё раз.");
+            isFinished = false;
+        }
+    } catch (error) {
+        alert("Ошибка сети. Результат не сохранён.");
+        isFinished = false;
+    }
+}
 
     function restartPractice() {
         typingInput.value = "";
